@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
+    <width>723</width>
     <height>684</height>
    </rect>
   </property>
@@ -112,7 +112,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>20</width>
              <height>20</height>
             </size>
            </property>
@@ -148,7 +148,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>20</width>
              <height>20</height>
             </size>
            </property>
@@ -236,6 +236,29 @@
           </widget>
          </item>
          <item>
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="generateQmlCheckBox">
+           <property name="text">
+            <string>Generate QML item</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -254,7 +277,9 @@
             <string>Save image</string>
            </property>
            <property name="icon">
-            <iconset theme="document-save"/>
+            <iconset theme="document-save">
+             <normaloff/>
+            </iconset>
            </property>
           </widget>
          </item>
@@ -267,6 +292,17 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>graphicsView</tabstop>
+  <tabstop>scaleSlider</tabstop>
+  <tabstop>widthBox</tabstop>
+  <tabstop>heightBox</tabstop>
+  <tabstop>radiusBox</tabstop>
+  <tabstop>addShadowButton</tabstop>
+  <tabstop>renderSourceCheckBox</tabstop>
+  <tabstop>generateQmlCheckBox</tabstop>
+  <tabstop>saveButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

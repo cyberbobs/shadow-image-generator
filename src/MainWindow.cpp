@@ -9,6 +9,7 @@
 // Qt
 #include <QGraphicsRectItem>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QDebug>
 
 
@@ -82,10 +83,52 @@ void MainWindow::on_saveButton_clicked()
   m_baseItem->setVisible(true);
   p.end();
 
-  qDebug() << target.save(fileName);
+  // Save file
+  bool saveResult = target.save(fileName);
+  if (!saveResult)
+  {
+    QMessageBox::critical(this, tr("Error saving file"), tr("Could not save file %1").arg(fileName));
+    return;
+  }
 
-  QRectF baseItemRect = m_baseItem->boundingRect().translated(-sourceRect.topLeft());
-  qDebug() << "Base item rectangle:" << baseItemRect;
+  // Generate QML
+  if (ui->generateQmlCheckBox->isChecked())
+  {
+    QRectF baseItemRect = m_baseItem->boundingRect().translated(-sourceRect.topLeft());
+    qDebug() << "Base item rectangle:" << baseItemRect;
+
+    QFileInfo fileInfo(fileName);
+    QFile qmlFile(fileInfo.absolutePath() + "/" + fileInfo.completeBaseName() + ".qml");
+    if (!qmlFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+      QMessageBox::critical(this, tr("Error saving file"), tr("Could not save file %1").arg(qmlFile.fileName()));
+      return;
+    }
+
+    QTextStream stream(&qmlFile);
+
+    stream << "import QtQuick 2.0" << endl;
+    stream << endl;
+    stream << "Item {" << endl;
+
+    stream << "  BorderImage {" << endl;
+    stream << "    source: \"" << fileInfo.fileName() << "\"" << endl;
+    stream << endl;
+    stream << "    anchors {" << endl;
+    stream << "      fill: parent" << endl;
+    stream << "      leftMargin: -border.left; topMargin: -border.top" << endl;
+    stream << "      rightMargin: -border.right; bottomMargin: -border.bottom" << endl;
+    stream << "    }" << endl;
+    stream << endl;
+    stream << "    border.left: " << baseItemRect.left() << "; border.top: " << baseItemRect.top() << endl;
+    stream << "    border.right: " << sourceRect.width() - baseItemRect.right()
+           <<   "; border.bottom: " << sourceRect.height() - baseItemRect.bottom() << endl;
+    stream << "  }" << endl;
+
+    stream << "}" << endl;
+
+    qmlFile.close();
+  }
 }
 
 
