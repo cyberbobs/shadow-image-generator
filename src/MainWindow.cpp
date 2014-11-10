@@ -64,7 +64,8 @@ void MainWindow::on_saveButton_clicked()
     fileName.append(".png");
 
   // Source scene rect to render
-  QRectF sourceRect = m_scene->itemsBoundingRect();
+  // We must use the aligned rectangle to not mess with the non-integer items coordinates
+  QRectF sourceRect = QRectF(m_scene->itemsBoundingRect().toAlignedRect());
 
   QImage target(sourceRect.width(), sourceRect.height(), QImage::Format_ARGB32_Premultiplied);
   target.fill(Qt::transparent);
