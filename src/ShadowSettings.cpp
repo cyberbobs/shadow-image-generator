@@ -86,7 +86,7 @@ void ShadowSettings::updateShadow()
   m_item->setBrush(QBrush(QColor(0, 0, 0, qreal(255) * (qreal(ui->opacityBox->value()) / 100))));
 
   // Blur
-  m_effect->setBlurRadius(ui->blurBox->value() * m_scale);
+  m_effect->setBlurRadius(ui->blurBox->value() * m_scale * 1.414 * 2);
   m_effect->update();
 
   // Fake item coordinates
