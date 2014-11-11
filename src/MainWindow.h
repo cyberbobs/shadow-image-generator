@@ -47,6 +47,8 @@ class MainWindow : public QMainWindow
     int m_height;
     int m_radius;
     qreal m_scale;
+
+    QRect filledRect(const QImage& image) const;
 };
 
 #endif // MAINWINDOW_H

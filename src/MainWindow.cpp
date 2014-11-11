@@ -83,6 +83,10 @@ void MainWindow::on_saveButton_clicked()
   m_baseItem->setVisible(true);
   p.end();
 
+  // Determine the image rectangle filled by shadow and crop borders
+  QRect filled = filledRect(target);
+  target = target.copy(filled);
+
   // Save file
   bool saveResult = target.save(fileName);
   if (!saveResult)
@@ -94,8 +98,7 @@ void MainWindow::on_saveButton_clicked()
   // Generate QML
   if (ui->generateQmlCheckBox->isChecked())
   {
-    QRectF baseItemRect = m_baseItem->boundingRect().translated(-sourceRect.topLeft());
-    qDebug() << "Base item rectangle:" << baseItemRect;
+    QRectF baseItemRect = m_baseItem->boundingRect().translated(-sourceRect.topLeft()).translated(-filled.topLeft());
 
     QFileInfo fileInfo(fileName);
     QFile qmlFile(fileInfo.absolutePath() + "/" + fileInfo.completeBaseName() + ".qml");
@@ -121,8 +124,8 @@ void MainWindow::on_saveButton_clicked()
     stream << "    }" << endl;
     stream << endl;
     stream << "    border.left: " << baseItemRect.left() << "; border.top: " << baseItemRect.top() << endl;
-    stream << "    border.right: " << sourceRect.width() - baseItemRect.right()
-           <<   "; border.bottom: " << sourceRect.height() - baseItemRect.bottom() << endl;
+    stream << "    border.right: " << target.width() - baseItemRect.right()
+           <<   "; border.bottom: " << target.height() - baseItemRect.bottom() << endl;
     stream << "  }" << endl;
 
     stream << "}" << endl;
@@ -174,4 +177,88 @@ void MainWindow::userScaleChanged(int value)
   ui->scaleValueLabel->setText(tr("%1%").arg(m_scale * 100));
 
   emit scaleChanged(m_scale);
+}
+
+
+QRect MainWindow::filledRect(const QImage& image) const
+{
+  QRect result = image.rect();
+
+  // Left border
+  while (result.left() < result.right())
+  {
+    bool hasFilledPixel = false;
+    for (int y = result.top(); y <= result.bottom(); y++)
+    {
+      if (qAlpha(image.pixel(result.left(), y)) > 0)
+      {
+        hasFilledPixel = true;
+        break;
+      }
+    }
+
+    if (hasFilledPixel)
+      break;
+
+    result.adjust(1, 0, 0, 0);
+  }
+
+  // Right border
+  while (result.right() > result.left())
+  {
+    bool hasFilledPixel = false;
+    for (int y = result.top(); y <= result.bottom(); y++)
+    {
+      if (qAlpha(image.pixel(result.right(), y)) > 0)
+      {
+        hasFilledPixel = true;
+        break;
+      }
+    }
+
+    if (hasFilledPixel)
+      break;
+
+    result.adjust(0, 0, -1, 0);
+  }
+
+  // Top border
+  while (result.top() < result.bottom())
+  {
+    bool hasFilledPixel = false;
+    for (int x = result.left(); x <= result.right(); x++)
+    {
+      if (qAlpha(image.pixel(x, result.top())) > 0)
+      {
+        hasFilledPixel = true;
+        break;
+      }
+    }
+
+    if (hasFilledPixel)
+      break;
+
+    result.adjust(0, 1, 0, 0);
+  }
+
+  // Top border
+  while (result.bottom() > result.top())
+  {
+    bool hasFilledPixel = false;
+    for (int x = result.left(); x <= result.right(); x++)
+    {
+      if (qAlpha(image.pixel(x, result.bottom())) > 0)
+      {
+        hasFilledPixel = true;
+        break;
+      }
+    }
+
+    if (hasFilledPixel)
+      break;
+
+    result.adjust(0, 0, 0, -1);
+  }
+
+  return result;
 }
