@@ -131,7 +131,8 @@ void ShadowSettings::updateShadow()
   m_item->setY(ui->yOffsetBox->value() * m_scale);
 
   // Opacity
-  m_item->setBrush(QBrush(QColor(0, 0, 0, qreal(255) * (qreal(ui->opacityBox->value()) / 100))));
+  // Since QGraphicsBlurEffect produces more opaque result than we need, we amplify it by the fixed coefficient
+  m_item->setBrush(QBrush(QColor(0, 0, 0, qreal(255) * (qreal(ui->opacityBox->value()) / 100) * 1.414)));
 
   // Blur
   m_effect->setBlurRadius(ui->blurBox->value() * m_scale * 1.414 * 2);

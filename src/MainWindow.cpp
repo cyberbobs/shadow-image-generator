@@ -49,6 +49,14 @@ MainWindow::MainWindow(QWidget* parent)
   connect(this, SIGNAL(sourceOptionsChanged(int,int,int)), SLOT(updateSource()));
   connect(this, SIGNAL(scaleChanged(qreal)), SLOT(updateSource()));
 
+  // Hack: position view to the center of layout
+  //
+  // This is the only way I've found to ensure the item will be placed in the center of view: we simply make the view
+  // rectangle definitely larger than the view itself, turn off the scroll bars display (in the UI file) and forcing
+  // positioning on the center of the base item. If the scene rect is smaller than the view itself, QGraphicsView
+  // control simply ignores QGraphicsView::centerOn calls
+  ui->graphicsView->setSceneRect(-1000, -1000, 2000, 2000);
+
   updateSource();
   updatePresets();
 }
@@ -147,13 +155,6 @@ void MainWindow::updateSource()
   m_baseItem->setRadiusX(m_radius * m_scale);
   m_baseItem->setRadiusY(m_radius * m_scale);
 
-  // Hack: position view to the center of layout
-  //
-  // This is the only way I've found to ensure the item will be placed in the center of view: we simply make the view
-  // rectangle definitely larger than the view itself, turn off the scroll bars display (in the UI file) and forcing
-  // positioning on the center of the base item. If the scene rect is smaller than the view itself, QGraphicsView
-  // control simply ignores QGraphicsView::centerOn calls
-  ui->graphicsView->setSceneRect(-1000, -1000, 2000, 2000);
   ui->graphicsView->centerOn(m_baseItem);
 }
 
@@ -168,6 +169,7 @@ void MainWindow::addShadow(int xOffset, int yOffset, int opacity, double blur)
 
   connect(this, SIGNAL(sourceOptionsChanged(int,int,int)), settings, SLOT(setSourceOptions(int,int,int)));
   connect(this, SIGNAL(scaleChanged(qreal)), settings, SLOT(setScale(qreal)));
+  connect(settings, &QObject::destroyed, [this](QObject* obj) { m_shadows.removeOne(qobject_cast<ShadowSettings*>(obj)); });
 
   settings->setXOffset(xOffset);
   settings->setYOffset(yOffset);
@@ -177,6 +179,7 @@ void MainWindow::addShadow(int xOffset, int yOffset, int opacity, double blur)
   shadowLayout->insertWidget(shadowLayout->count() - 1, settings);
 
   m_shadows.append(settings);
+  ui->graphicsView->centerOn(m_baseItem);
 }
 
 
