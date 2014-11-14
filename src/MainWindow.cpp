@@ -29,7 +29,6 @@ MainWindow::MainWindow(QWidget* parent)
   m_baseItem->setBrush(QBrush(Qt::white));
   m_baseItem->setPen(QPen(Qt::NoBrush, 0, Qt::NoPen));
   m_baseItem->setZValue(1000);
-  updateSource();
 
   m_scene->addItem(m_baseItem);
   ui->graphicsView->setScene(m_scene);
@@ -45,6 +44,8 @@ MainWindow::MainWindow(QWidget* parent)
 
   connect(this, SIGNAL(sourceOptionsChanged(int,int,int)), SLOT(updateSource()));
   connect(this, SIGNAL(scaleChanged(qreal)), SLOT(updateSource()));
+
+  updateSource();
 }
 
 
@@ -140,6 +141,15 @@ void MainWindow::updateSource()
   m_baseItem->setRect(0, 0, m_width * m_scale, m_height * m_scale);
   m_baseItem->setRadiusX(m_radius * m_scale);
   m_baseItem->setRadiusY(m_radius * m_scale);
+
+  // Hack: position view to the center of layout
+  //
+  // This is the only way I've found to ensure the item will be placed in the center of view: we simply make the view
+  // rectangle definitely larger than the view itself, turn off the scroll bars display (in the UI file) and forcing
+  // positioning on the center of the base item. If the scene rect is smaller than the view itself, QGraphicsView
+  // control simply ignores QGraphicsView::centerOn calls
+  ui->graphicsView->setSceneRect(-1000, -1000, 2000, 2000);
+  ui->graphicsView->centerOn(m_baseItem);
 }
 
 
