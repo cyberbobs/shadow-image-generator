@@ -4,7 +4,7 @@
 // Qt
 #include <QMainWindow>
 class QGraphicsScene;
-class QGraphicsRectItem;
+class QSettings;
 
 // Ui
 namespace Ui
@@ -14,6 +14,7 @@ namespace Ui
 
 // Local
 class GraphicsRoundedRectItem;
+class ShadowSettings;
 
 
 class MainWindow : public QMainWindow
@@ -32,23 +33,31 @@ class MainWindow : public QMainWindow
     void on_saveButton_clicked();
 
     void updateSource();
-    void addShadow();
+    void addShadow(int xOffset = 5, int yOffset = 5, int opacity = 50, double blur = 10.);
 
     void userSourceChanged();
     void userScaleChanged(int value);
+
+    void loadShadowPreset();
+
+    void on_addPresetButton_clicked();
 
   private:
     Ui::MainWindow* ui;
     QGraphicsScene* m_scene;
 
+    QSettings* m_settings;
+
     GraphicsRoundedRectItem* m_baseItem;
+    QList<ShadowSettings*> m_shadows;
 
     int m_width;
     int m_height;
     int m_radius;
     qreal m_scale;
 
-    QRect filledRect(const QImage& image) const;
+    static QRect filledRect(const QImage& image);
+    void updatePresets();
 };
 
 #endif // MAINWINDOW_H

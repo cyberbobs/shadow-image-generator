@@ -25,6 +25,18 @@ class ShadowSettings : public QWidget
     explicit ShadowSettings(QGraphicsScene* scene, QWidget* parent = 0);
     ~ShadowSettings();
 
+    int xOffset() const;
+    void setXOffset(int);
+
+    int yOffset() const;
+    void setYOffset(int);
+
+    int opacity() const;
+    void setOpacity(int);
+
+    double blur() const;
+    void setBlur(double);
+
   public slots:
     void setSourceOptions(int width, int height, int radius);
     void setScale(qreal scale);

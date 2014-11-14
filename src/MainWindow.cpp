@@ -10,12 +10,16 @@
 #include <QGraphicsRectItem>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QSettings>
+#include <QMenu>
+#include <QInputDialog>
 #include <QDebug>
 
 
 MainWindow::MainWindow(QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
+  , m_settings(new QSettings)
   , m_width(40)
   , m_height(40)
   , m_radius(0)
@@ -46,6 +50,7 @@ MainWindow::MainWindow(QWidget* parent)
   connect(this, SIGNAL(scaleChanged(qreal)), SLOT(updateSource()));
 
   updateSource();
+  updatePresets();
 }
 
 
@@ -153,7 +158,7 @@ void MainWindow::updateSource()
 }
 
 
-void MainWindow::addShadow()
+void MainWindow::addShadow(int xOffset, int yOffset, int opacity, double blur)
 {
   QBoxLayout* shadowLayout = static_cast<QBoxLayout*>(ui->shadowsBox->layout());
 
@@ -164,7 +169,14 @@ void MainWindow::addShadow()
   connect(this, SIGNAL(sourceOptionsChanged(int,int,int)), settings, SLOT(setSourceOptions(int,int,int)));
   connect(this, SIGNAL(scaleChanged(qreal)), settings, SLOT(setScale(qreal)));
 
+  settings->setXOffset(xOffset);
+  settings->setYOffset(yOffset);
+  settings->setOpacity(opacity);
+  settings->setBlur(blur);
+
   shadowLayout->insertWidget(shadowLayout->count() - 1, settings);
+
+  m_shadows.append(settings);
 }
 
 
@@ -190,7 +202,31 @@ void MainWindow::userScaleChanged(int value)
 }
 
 
-QRect MainWindow::filledRect(const QImage& image) const
+void MainWindow::loadShadowPreset()
+{
+  QAction* a = qobject_cast<QAction*>(sender());
+  if (!a)
+  {
+    qWarning("Unknown action source");
+    return;
+  }
+
+  QVariantList o = a->data().toList();
+  if (o.size() % 4)
+  {
+    qWarning() << "Incorrect preset data for preset" << a->text();
+    return;
+  }
+
+  qDeleteAll(m_shadows);
+  m_shadows.clear();
+
+  for (int i = 0; i < o.size() / 4; ++i)
+    addShadow(o.at(i * 4).toInt(), o.at(i * 4 + 1).toInt(), o.at(i * 4 + 2).toInt(), o.at(i * 4 + 3).toDouble());
+}
+
+
+QRect MainWindow::filledRect(const QImage& image)
 {
   QRect result = image.rect();
 
@@ -271,4 +307,86 @@ QRect MainWindow::filledRect(const QImage& image) const
   }
 
   return result;
+}
+
+
+void MainWindow::updatePresets()
+{
+  if (!ui->loadPresetButton->menu())
+    ui->loadPresetButton->setMenu(new QMenu);
+
+  QMenu* menu = ui->loadPresetButton->menu();
+  menu->clear();
+
+  // Default presets
+  QVariantList presets;
+  if (!m_settings->contains("ShadowPresets"))
+  {
+    QVariantMap d1;
+    d1[QStringLiteral("name")] = tr("Material design Z=1");
+    d1[QStringLiteral("options")] = QVariantList() << 0 << 1 << 12 << 1.5
+                                                   << 0 << 1 << 24 << 1.;
+
+    QVariantMap d2;
+    d2[QStringLiteral("name")] = tr("Material design Z=2");
+    d2[QStringLiteral("options")] = QVariantList() << 0 << 3 << 16 << 3.
+                                                   << 0 << 3 << 23 << 3.;
+
+    QVariantMap d3;
+    d3[QStringLiteral("name")] = tr("Material design Z=3");
+    d3[QStringLiteral("options")] = QVariantList() << 0 << 10 << 19 << 10.
+                                                   << 0 << 6  << 23 << 3.;
+
+    QVariantMap d4;
+    d4[QStringLiteral("name")] = tr("Material design Z=4");
+    d4[QStringLiteral("options")] = QVariantList() << 0 << 14 << 25 << 14.
+                                                   << 0 << 10 << 22 << 5.;
+
+    QVariantMap d5;
+    d5[QStringLiteral("name")] = tr("Material design Z=5");
+    d5[QStringLiteral("options")] = QVariantList() << 0 << 19 << 30 << 19.
+                                                   << 0 << 15 << 22 << 6.;
+
+    presets << d1 << d2 << d3 << d4 << d5;
+    m_settings->setValue(QStringLiteral("ShadowPresets"), presets);
+  }
+  else
+  {
+    presets = m_settings->value(QStringLiteral("ShadowPresets")).toList();
+  }
+
+  // Fill in the menu
+  for (auto p : presets)
+  {
+    if (!p.isValid())
+    {
+      qWarning() << "Failed to load preset";
+      continue;
+    }
+
+    QVariantMap preset = p.toMap();
+    auto action = menu->addAction(preset[QStringLiteral("name")].toString(), this, SLOT(loadShadowPreset()));
+    action->setData(preset[QStringLiteral("options")]);
+  }
+}
+
+
+void MainWindow::on_addPresetButton_clicked()
+{
+  QString name = QInputDialog::getText(this, tr("Choose preset name"), tr("Preset name:"));
+  if (!name.isEmpty())
+  {
+    QVariantMap preset;
+    preset[QStringLiteral("name")] = name;
+    QVariantList options;
+    for (auto s : m_shadows)
+      options << s->xOffset() << s->yOffset() << s->opacity() << s->blur();
+
+    preset[QStringLiteral("options")] = options;
+
+    auto presets = m_settings->value(QStringLiteral("ShadowPresets")).toList();
+    presets.append(preset);
+    m_settings->setValue(QStringLiteral("ShadowPresets"), presets);
+    updatePresets();
+  }
 }

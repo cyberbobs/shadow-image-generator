@@ -54,6 +54,54 @@ ShadowSettings::~ShadowSettings()
 }
 
 
+int ShadowSettings::xOffset() const
+{
+  return ui->xOffsetBox->value();
+}
+
+
+void ShadowSettings::setXOffset(int xOffset)
+{
+  ui->xOffsetBox->setValue(xOffset);
+}
+
+
+int ShadowSettings::yOffset() const
+{
+  return ui->yOffsetBox->value();
+}
+
+
+void ShadowSettings::setYOffset(int yOffset)
+{
+  ui->yOffsetBox->setValue(yOffset);
+}
+
+
+int ShadowSettings::opacity() const
+{
+  return ui->opacityBox->value();
+}
+
+
+void ShadowSettings::setOpacity(int opacity)
+{
+  ui->opacityBox->setValue(opacity);
+}
+
+
+double ShadowSettings::blur() const
+{
+  return ui->blurBox->value();
+}
+
+
+void ShadowSettings::setBlur(double blur)
+{
+  ui->blurBox->setValue(blur);
+}
+
+
 void ShadowSettings::setSourceOptions(int width, int height, int radius)
 {
   m_width = width;
