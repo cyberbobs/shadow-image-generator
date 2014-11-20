@@ -169,7 +169,13 @@ void MainWindow::addShadow(int xOffset, int yOffset, int opacity, double blur)
 
   connect(this, SIGNAL(sourceOptionsChanged(int,int,int)), settings, SLOT(setSourceOptions(int,int,int)));
   connect(this, SIGNAL(scaleChanged(qreal)), settings, SLOT(setScale(qreal)));
-  connect(settings, &QObject::destroyed, [this](QObject* obj) { m_shadows.removeOne(qobject_cast<ShadowSettings*>(obj)); });
+  connect(settings, &QObject::destroyed,
+          [this](QObject* obj)
+          {
+            qDebug() << obj;
+            this->m_shadows.removeOne(static_cast<ShadowSettings*>(obj));
+            qDebug("remove");
+          });
 
   settings->setXOffset(xOffset);
   settings->setYOffset(yOffset);
