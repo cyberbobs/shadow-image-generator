@@ -95,7 +95,7 @@ void MainWindow::on_saveButton_clicked()
 
   m_scene->render(&p, target.rect(), sourceRect);
 
-  QRect filled = filledRect(target, 5);
+  QRect filled = filledRect(target);
 
   // Clear source region if needed
   if (ui->transparentSourceRadio->isChecked())
