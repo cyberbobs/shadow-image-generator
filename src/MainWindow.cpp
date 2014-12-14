@@ -103,7 +103,7 @@ void MainWindow::on_saveButton_clicked()
     p.setCompositionMode(QPainter::CompositionMode_DestinationOut);
     p.setBrush(QBrush(Qt::white));
     p.setPen(Qt::NoPen);
-    p.drawRoundedRect(m_baseItem->boundingRect().translated(-sourceRect.topLeft()), m_radius, m_radius);
+    p.drawRoundedRect(m_baseItem->boundingRect().translated(-sourceRect.topLeft()), m_radius * m_scale, m_radius * m_scale);
   }
 
   m_baseItem->setVisible(true);
