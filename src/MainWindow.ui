@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>723</width>
-    <height>698</height>
+    <height>797</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -202,7 +202,9 @@
             <string>Preset</string>
            </property>
            <property name="icon">
-            <iconset theme="document-import"/>
+            <iconset theme="document-import">
+             <normaloff/>
+            </iconset>
            </property>
           </widget>
          </item>
@@ -212,7 +214,9 @@
             <string>Add preset</string>
            </property>
            <property name="icon">
-            <iconset theme="list-add"/>
+            <iconset theme="list-add">
+             <normaloff/>
+            </iconset>
            </property>
            <property name="autoRaise">
             <bool>true</bool>
@@ -273,11 +277,35 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
-          <widget class="QCheckBox" name="renderSourceCheckBox">
+          <widget class="QLabel" name="label">
            <property name="text">
-            <string>Render source object</string>
+            <string>Source render mode:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="noSourceRadio">
+           <property name="text">
+            <string>No source</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="renderSourceRadio">
+           <property name="text">
+            <string>Render source</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="transparentSourceRadio">
+           <property name="text">
+            <string>Transparent source</string>
            </property>
           </widget>
          </item>
@@ -286,17 +314,18 @@
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>20</width>
+             <width>40</width>
              <height>20</height>
             </size>
            </property>
           </spacer>
          </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QCheckBox" name="generateQmlCheckBox">
            <property name="text">
@@ -345,7 +374,6 @@
   <tabstop>heightBox</tabstop>
   <tabstop>radiusBox</tabstop>
   <tabstop>addShadowButton</tabstop>
-  <tabstop>renderSourceCheckBox</tabstop>
   <tabstop>generateQmlCheckBox</tabstop>
   <tabstop>saveButton</tabstop>
  </tabstops>

@@ -89,17 +89,34 @@ void MainWindow::on_saveButton_clicked()
   p.setRenderHint(QPainter::Antialiasing);
   p.setRenderHint(QPainter::SmoothPixmapTransform);
 
-  if (!ui->renderSourceCheckBox->isChecked())
+  // Don't draw the base item if it's not requested
+  if (!ui->renderSourceRadio->isChecked())
     m_baseItem->setVisible(false);
 
   m_scene->render(&p, target.rect(), sourceRect);
+
+  QRect filled = filledRect(target, 5);
+
+  // Clear source region if needed
+  if (ui->transparentSourceRadio->isChecked())
+  {
+    p.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+    p.setBrush(QBrush(Qt::white));
+    p.setPen(Qt::NoPen);
+    p.drawRoundedRect(m_baseItem->boundingRect().translated(-sourceRect.topLeft()), m_radius, m_radius);
+  }
 
   m_baseItem->setVisible(true);
   p.end();
 
   // Determine the image rectangle filled by shadow and crop borders
-  QRect filled = filledRect(target);
   target = target.copy(filled);
+
+  QLabel* l = new QLabel;
+  l->setAttribute(Qt::WA_DeleteOnClose);
+  l->setStyleSheet(ui->graphicsView->styleSheet());
+  l->setPixmap(QPixmap::fromImage(target));
+  l->show();
 
   // Save file
   bool saveResult = target.save(fileName);
@@ -231,7 +248,7 @@ void MainWindow::loadShadowPreset()
 }
 
 
-QRect MainWindow::filledRect(const QImage& image)
+QRect MainWindow::filledRect(const QImage& image, int threshold)
 {
   QRect result = image.rect();
 
@@ -241,7 +258,7 @@ QRect MainWindow::filledRect(const QImage& image)
     bool hasFilledPixel = false;
     for (int y = result.top(); y <= result.bottom(); y++)
     {
-      if (qAlpha(image.pixel(result.left(), y)) > 0)
+      if (qAlpha(image.pixel(result.left(), y)) > threshold)
       {
         hasFilledPixel = true;
         break;
@@ -260,7 +277,7 @@ QRect MainWindow::filledRect(const QImage& image)
     bool hasFilledPixel = false;
     for (int y = result.top(); y <= result.bottom(); y++)
     {
-      if (qAlpha(image.pixel(result.right(), y)) > 0)
+      if (qAlpha(image.pixel(result.right(), y)) > threshold)
       {
         hasFilledPixel = true;
         break;
@@ -279,7 +296,7 @@ QRect MainWindow::filledRect(const QImage& image)
     bool hasFilledPixel = false;
     for (int x = result.left(); x <= result.right(); x++)
     {
-      if (qAlpha(image.pixel(x, result.top())) > 0)
+      if (qAlpha(image.pixel(x, result.top())) > threshold)
       {
         hasFilledPixel = true;
         break;
@@ -298,7 +315,7 @@ QRect MainWindow::filledRect(const QImage& image)
     bool hasFilledPixel = false;
     for (int x = result.left(); x <= result.right(); x++)
     {
-      if (qAlpha(image.pixel(x, result.bottom())) > 0)
+      if (qAlpha(image.pixel(x, result.bottom())) > threshold)
       {
         hasFilledPixel = true;
         break;

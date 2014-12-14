@@ -56,7 +56,7 @@ class MainWindow : public QMainWindow
     int m_radius;
     qreal m_scale;
 
-    static QRect filledRect(const QImage& image);
+    static QRect filledRect(const QImage& image, int threshold = 0);
     void updatePresets();
 };
 
