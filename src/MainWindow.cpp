@@ -150,13 +150,16 @@ void MainWindow::on_saveButton_clicked()
     stream << endl;
     stream << "    anchors {" << endl;
     stream << "      fill: parent" << endl;
-    stream << "      leftMargin: -border.left; topMargin: -border.top" << endl;
-    stream << "      rightMargin: -border.right; bottomMargin: -border.bottom" << endl;
+    stream << "      topMargin: -"    << baseItemRect.top() << endl;
+    stream << "      rightMargin: -"  << target.width() - baseItemRect.right() << endl;
+    stream << "      bottomMargin: -" << target.height() - baseItemRect.bottom() << endl;
+    stream << "      leftMargin: -"   << baseItemRect.left() << endl;
     stream << "    }" << endl;
     stream << endl;
-    stream << "    border.left: " << baseItemRect.left() << "; border.top: " << baseItemRect.top() << endl;
-    stream << "    border.right: " << target.width() - baseItemRect.right()
-           <<   "; border.bottom: " << target.height() - baseItemRect.bottom() << endl;
+    stream << "    border.top: " << baseItemRect.top() + m_baseItem->radiusY() * 2 << endl;
+    stream << "    border.right: " << target.width() - baseItemRect.right() + m_baseItem->radiusX() * 2 << endl;
+    stream << "    border.bottom: " << target.height() - baseItemRect.bottom() + m_baseItem->radiusY() * 2 << endl;
+    stream << "    border.left: " << baseItemRect.left() + m_baseItem->radiusX() * 2 << endl;
     stream << "  }" << endl;
 
     stream << "}" << endl;
